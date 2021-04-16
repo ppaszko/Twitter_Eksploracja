@@ -1,8 +1,11 @@
+import csv
+from _csv import reader
+
 import requests
 import json
 import TwitterAPI
 import datetime
-
+import pandas as pd
 consumer_key = 'Rtc2Q6UT6suUSRUZAOrAc7Cvy'
 consumer_secret = 'HUB2y0VadL4PiAOvpWEvQAielzZEw2g5DHXwgBy3v2eLtYerJh'
 access_token = '1348985626750820355-XxasjfmxmwqkTo4ktct2YKfGy3dIAS'
@@ -26,21 +29,27 @@ def write_json(new_data, filename='new_parsed_tweets.json'):
         json.dump(new_data, f, indent=4)
 
 def tweet_by_id():
-    with open('tweets_id_dates_closed.json') as json_file:
-        collected_tweets = json.load(json_file)
+    with open('luj.csv', 'r') as read_obj:
+        # pass the file object to reader() to get the reader object
+        collected_tweets = list(reader(read_obj))
+        # Iterate over each row in the csv using reader object
+
 
     for tweet in collected_tweets:
-        id=tweet["id"]
-        tweet_date=tweet['created_at']
-        if (abs((datetime.datetime.strptime(tweet_date, '%a %b %d %H:%M:%S %z %Y')-today).days )<5) & (abs((datetime.datetime.strptime(tweet_date, '%a %b %d %H:%M:%S %z %Y')-today).days )>2):
-            print(tweet['created_at'])
-            data = (api.request('statuses/show/:%d' % id)).text
+        id=tweet[0]
+        print(id)
+        tweet_date=tweet[1]
+        print(tweet_date)
+        if (abs((datetime.datetime.strptime(tweet_date, '%a %b %d %H:%M:%S %z %Y')-today).days )<8) & (abs((datetime.datetime.strptime(tweet_date, '%a %b %d %H:%M:%S %z %Y')-today).days )>2):
+            #print(tweet['twe'])
+            data = (api.request('statuses/show/:%s' % id)).text
             data=json.loads(data)
+
             #print(tweet)
             #print(collected_tweets[:3])
             collected_tweets.pop(0)
             #print(collected_tweets[:3])
-            write_json(collected_tweets, filename='parsed_tweets.json')
+            #write_json(collected_tweets, filename='parsed_tweets.json')
 
             # i=
             #print(data)
@@ -90,16 +99,28 @@ def tweet_by_id():
 
                     single_data['hashtags_list'] = hashtags_list
 
-                    with open('new_parsed_tweets.json') as json_file:
-                        parsed_tweets = json.load(json_file)
-                        parsed_tweets.append(single_data)
+                    # with open('new_parsed_tweets.json') as json_file:
+                    #     parsed_tweets = json.load(json_file)
+                    #     parsed_tweets.append(single_data)
 
-                    write_json(parsed_tweets)
+                    # write_json(parsed_tweets)
+                    print("luj")
+                    with open('parsed_new.csv', 'a') as fd:
+                        writer_object = csv.writer(fd)
+
+                        # Pass the list as an argument into
+                        # the writerow().
+                        writer_object.writerow(list(single_data.values()))
+
+
             except:
                 pass
 
+# while True:
+#     try:
+#         tweet_by_id()
+#     except:
+#         tweet_by_id()
+
 while True:
-    try:
-        tweet_by_id()
-    except:
-        tweet_by_id()
+    tweet_by_id()
