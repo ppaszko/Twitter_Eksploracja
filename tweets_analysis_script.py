@@ -29,32 +29,36 @@ for i in common_hashtags:
     comm.append(i[0])
 #%%
 print(comm)
-a = datetime.datetime.today()
-numdays = 11
+a = datetime.date.today()
+numdays = 13
 date_list = []
 for x in range (0, numdays):
     date_list.append(a - datetime.timedelta(days = x))
+
 print (date_list)
-
-
+print(date_list[0])
+df['created_at']=pd.to_datetime(df['created_at'])
+df['created_at']=df['created_at'].apply(lambda x: x.replace(tzinfo=None))
+df['created_at']=df['created_at'].dt.date
 new_data=[]
 for date in date_list:
-    print(date.day)
+    df_filtered=df[((df["created_at"]==date))]
+    print(df_filtered)
     for hashtag in comm:
         new_row=[0]*6
         #print(new_row)
-        for index, row in df.iterrows():
+        for index, row in df_filtered.iterrows():
             #print(row
             #print(row["created_at"].day )
-            if (date-row["created_at"].tz_convert(None)).days==0 and hashtag in row["hashtags_list"]:
+            if hashtag in row["hashtags_list"]:
                 new_row[0]=date
                 new_row[1]=hashtag
                 new_row[2]+=1
                 new_row[3]+=row["retweet_count"]
                 new_row[4]+=row["favorite_count"]
                 new_row[5]+=row["user_followers_count"]
-                print("luj")
-                print(new_row)
+                # print("luj")
+                # print(new_row)
                 #df.drop(index)
         new_data.append(new_row)
         #print(new_data)
